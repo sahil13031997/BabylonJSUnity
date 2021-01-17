@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>BabyLonUnity</title>
+    <!-- Policy -->
+    <meta http-equiv="Content-Security-Policy" content="default-src * ws: wss: gap: data: file: http: https: blob:; worker-src * ws: wss: gap: data: file: http: https: blob:; style-src * 'unsafe-inline'; script-src * 'unsafe-inline' 'unsafe-eval'" />
+    <!-- Caches -->
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html" charset="utf-8">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <!-- Default -->
+    <meta name="edge" content="IE=edge" http-equiv="X-UA-Compatible">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, shrink-to-fit=no, user-scalable=no, viewport-fit=cover">
+    <meta name="browsermode" content="application">
+    <meta name="description" content="BabyLonUnity">
+    <meta name="theme-color" content="#2A2342">
+    <!-- Apple -->
+    <meta name="apple-mobile-web-app-title" content="BabyLonUnity">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <!-- Android  -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <!-- Windows  -->
+    <meta name="application-name" content="BabyLonUnity">
+    <meta name="msapplication-navbutton-color" content="#2A2342">
+    <meta name="msapplication-tooltip" content="BabyLonUnity">
+    <meta name="msapplication-starturl" content=".">
+    <meta name="msapplication-TileColor" content="#2A2342">
+    <meta name="msapplication-tap-highlight" content="no">
+    <!-- Favorite -->
+    <link rel="shortcut icon" type="image/x-icon" href="favicon.ico" />
+    <!-- Toaster - https://github.com/dolce/iziToast -->
+    <link href="css/toaster.css" rel="stylesheet" type="text/css">
+    
+    <style nonce="none">
+        html, body {
+            position: absolute;
+            min-height: 100%;
+            width: 100%;
+            height: 100%;
+            padding: 0px;
+            margin: 0px;
+            overflow: hidden;
+            touch-action: none;
+            font-family: "Segoe UI", "Segoe WP", "Verdana", "Arial";
+            background-color: #2A2342;
+        }
+        #panel {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 400px;
+            height: 100px;
+            min-width: 400px;
+            min-height: 100px;
+            margin-top: -50px;
+            margin-left: -200px;
+            z-index: 1000;
+        }
+        #proj {
+            margin: 0px;
+            padding: 0px;
+            padding-bottom: 14px;
+            z-index: 1001;
+            font-size: 14px;
+            text-align: center;
+            color: #F3F3F3;
+            outline: none;
+            overflow: hidden;
+        }
+        #status {
+            position: absolute;
+            top: 50%;
+            left:50%;
+            margin: 0px;
+            padding: 0px;
+            padding-top: 30px;
+            z-index: 1001;
+            width: 100px;
+            min-width: 100px;
+            margin-top: -14px;
+            margin-left: -50px;
+            font-size: 10px;
+            text-align: center;
+            color: #F3F3F3;
+            outline: none;
+            overflow: hidden;
+        }
+        #details {
+            margin: 0px;
+            padding: 0px;
+            padding-top: 14px;
+            z-index: 1001;
+            font-size: 12px;
+            text-align: center;
+            color: #F3F3F3;
+            outline: none;
+            overflow: hidden;
+        }
+        #cvs {
+            position: absolute;
+            min-height: 100%;
+            width: 100%;
+            height: 100%;
+            padding: 0px;
+            margin: 0px;
+            z-index: 0;
+            opacity: 0;
+            outline: none;
+            overflow: hidden;
+        }
+        .load {
+            border: 4px solid #F3F3F3;
+            border-top: 4px solid #E0684B;
+            border-radius: 50%;
+            width: 72px;
+            height: 72px;
+            z-index: 1001;
+            animation: spin 2s linear infinite;
+        }
+        .data {
+            border: 4px solid #F3F3F3;
+            border-top: 4px solid #00FF00;
+            border-radius: 50%;
+            width: 72px;
+            height: 72px;
+            z-index: 1001;
+            animation: spin 2s linear infinite;
+        }
+        .hidden { display: none; }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        #babylonUnmuteIconBtn {
+            display: block !important;
+        }        
+    </style>
+    <script type="text/javascript" nonce="none">
+        function getReloadScene(reloading) {
+            var result = null; 
+            if (window.top.state != null && window.top.state.navigation != null) {
+                if (reloading === true && window.top.state.navigation === 1)  {
+                    result = window.top.sessionStorage?.getItem("reloadScene");
+                }
+                window.top.state.navigation = 0; // Reset State Navigation Flag                
+            }
+            window.top.sessionStorage?.removeItem("reloadScene"); // Reset Reload Scene Name
+            return (result != null && result !== "") ? result : null;
+        };
+        function getUrlParameter(name) {
+            name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+            var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+            var results = regex.exec(window.location.search);
+            return (results !== null) ? decodeURIComponent(results[1].replace(/\+/g, ' ')) : null;
+        };
+    </script>
+</head>
+<body touch-action="none">
+    <div id="panel">
+        <center>
+            <div id="proj">BabyLonUnity</div>
+            <div id="load" class="load"></div>
+            <div id="status">Loading</div>
+            <div id="details">Downloading script files</div>
+        </center>
+    </div>
+    <canvas id="cvs"></canvas>
+
+    <!-- Tool Libraries -->
+    <script type="text/javascript" src="scripts/fastclick.js"></script>
+    <script type="text/javascript" src="scripts/toaster.js"></script>
+    <script type="text/javascript" src="scripts/meter.js"></script>
+    <script type="text/javascript" src="scripts/pep.js"></script>
+
+    
+
+    <!-- Engine Libraries -->
+    <script type="text/javascript" src="scripts/babylon.min.js"></script>
+    <script type="text/javascript" src="scripts/babylon.gui.js"></script>
+    <script type="text/javascript" src="scripts/babylon.gltf.js"></script>
+    <script type="text/javascript" src="scripts/babylon.earcut.js"></script>
+
+    <!-- Support Libraries -->
+	<script type="text/javascript" src="scripts/ammo.js"></script>
+	<script type="text/javascript" src="scripts/recast.js"></script>
+	<script type="text/javascript" src="scripts/babylon.inspector.js"></script>
+
+    <!-- Manager Libraries -->
+    <script type="text/javascript" src="scripts/babylon.manager.js"></script>
+    <script type="text/javascript" src="scripts/babylon.materials.js"></script>
+
+    <!-- Project Script Bundle -->
+    <script type="text/javascript" src="scenes/BabyLonUnity.js"></script>
+
+    <!-- Default Scene Loader -->
+    <script type="text/javascript" nonce="none">
+    (async function() {
+        window.ktx2 = false;
+        window.scene = null;
+        window.toolkit = true;
+        var engine = null;
+        var versionStamp = 'da72c3ff-5adf-4f25-865b-2205f8714f8f';
+        var pagetype = "project", defaultscene= "SampleScene.gltf", physics = true, navmesh = true, renderengine = 0, antialias = true, adaptive = false, datax = "#00FF00", folder = "scenes/", title = "BabyLonUnity";
+        var loaded = false, paused = false, reloader = false, downloaded = 0;
+        var proj = document.getElementById("proj");
+        var panel = document.getElementById("panel");
+        var loader = document.getElementById("load");
+        var label = document.getElementById("status");
+        var details = document.getElementById("details");
+        var divcvs = document.getElementById("cvs");
+        // ************************************************************************ //
+        // QUERY STRING - Parse Root Urls And Scene Name Parameters                 //
+        // ************************************************************************ //
+        var rooturl = "" + (getUrlParameter("root") || "");
+        if (rooturl != null && rooturl !== "" && !rooturl.endsWith("/")) rooturl += "/";
+        var sceneurl = "" + (getUrlParameter("path") || folder);
+        if (sceneurl != null && sceneurl !== "" && !sceneurl.endsWith("/")) sceneurl += "/";
+        var scenename = "" + (getUrlParameter("scene") || defaultscene);
+        var scenepath = "" + (rooturl + sceneurl);
+        var adaptparam = getUrlParameter("adaptive");
+        if (adaptparam != null && adaptparam !== "") {
+            adaptparam = adaptparam.toLowerCase();
+            adaptive = (adaptparam === "true" || adaptparam === "yes");
+        }
+        // ************************************************************************ //
+        // STATS PANEL - Setup Performance Stats Information Panel                  //
+        // ************************************************************************ //
+        var showStatsPanel = false;
+        if (showStatsPanel === true && typeof FPSMeter !== "undefined") {
+            var anchor = 1;
+            var stats = 'fps';
+            var look = 'colorful';
+            var atop = 'auto';
+            var aleft = 'auto';
+            var aright = 'auto';
+            var abottom = 'auto';
+            if (anchor === 0) {
+                atop = '5px';
+                aleft = '5px';
+            } else if (anchor === 1) {
+                atop = '5px';
+                aright = '5px';
+            } else if (anchor === 2) {
+                abottom = '5px';
+                aleft = '5px';
+            } else if (anchor === 3) {
+                abottom = '5px';
+                aright = '5px';
+            } else {
+                atop = '5px';
+                aright = '5px';
+            }
+            window.METER = new FPSMeter({
+                interval:  100,         // Update interval in milliseconds.
+                smoothing: 10,          // Spike smoothing strength. 1 means no smoothing.
+                show:      stats,       // Whether to show 'fps', or 'ms' = frame duration in milliseconds.
+                toggleOn:  'click',     // Toggle between show 'fps' and 'ms' on this event.
+                decimals:  0,           // Number of decimals in FPS number. 1 = 59.9, 2 = 59.94, ...
+                maxFps:    60,          // Max expected FPS value.
+                threshold: 100,         // Minimal tick reporting interval in milliseconds.
+                // ..
+                // Position Options
+                // ..
+                position: 'absolute',   // Meter position.
+                zIndex:   10,           // Meter Z index.
+                top:      atop,         // Meter top offset.
+                left:     aleft,        // Meter left offset.
+                right:    aright,       // Meter right offset.
+                bottom:   abottom,      // Meter bottom offset.
+                margin:   '0 0 0 0',    // Meter margin. Helps with centering the counter when left: 50%;
+                // ..
+                // Theme Options
+                // ..
+                theme: look,            // Meter theme. Build in: 'dark', 'light', 'transparent', 'colorful'.
+                heat:  1,               // Allow themes to use coloring by FPS heat. 0 FPS = red, maxFps = green.
+                // ..
+                // Graph Options
+                // ..
+                graph:   1,             // Whether to show history graph.
+                history: 20             // How many history states to show in a graph.
+            });
+        }
+        ///////////////////////////////////////////////////////////
+        // Babylon Web Socket Window Hook
+        ///////////////////////////////////////////////////////////
+        window.socketConnect = function(connection) {
+            if (window["io"] != null) {
+                if (window.state == null) window.state = {};
+                window.state["socket"] = window["io"].connect(connection, {transports: ['websocket']});
+                if (window.state["socket"] != null) {
+                    window.state["socket"].on('connect', ()=>{
+                        if (window.state.onSocketConnect) {
+                            window.state.onSocketConnect();
+                        }
+                        window.state["socket"].on('disconnect', ()=>{
+                            if (window.state.onSocketDisconnect) {
+                                window.state.onSocketDisconnect();
+                            }
+                        });
+                    });
+                }
+            }
+            return (window.state != null && window.state["socket"] != null) ? window.state["socket"] : null;
+        }
+        ///////////////////////////////////////////////////////////
+        // Babylon Photon Engine Window Hook
+        ///////////////////////////////////////////////////////////
+        window.photonNameServer = function(options, address, handler) {
+            if (window["Photon"] != null) {
+                if (window.state == null) window.state = {};
+                var client = new Photon.LoadBalancing.LoadBalancingClient();
+                if (handler != null) client.onStateChange = handler;
+                if (address != null && address !== "") client.setNameServerAddress(address);
+                client.connectToNameServer(options);
+                window.state["photon"] = client;
+            }
+            return (window.state != null && window.state["photon"] != null) ? window.state["photon"] : null;
+        }
+        window.photonRegionServer = function(region, address, handler) {
+            if (window["Photon"] != null) {
+                if (window.state == null) window.state = {};
+                var client = new Photon.LoadBalancing.LoadBalancingClient();
+                if (handler != null) client.onStateChange = handler;
+                if (address != null && address !== "") client.setNameServerAddress(address);
+                client.connectToRegionMaster(region);
+                window.state["photon"] = client;
+            }
+            return (window.state != null && window.state["photon"] != null) ? window.state["photon"] : null;
+        }
+        window.photonMasterServer = function(address, options, handler) {
+            if (window["Photon"] != null) {
+                if (window.state == null) window.state = {};
+                var client = new Photon.LoadBalancing.LoadBalancingClient();
+                if (handler != null) client.onStateChange = handler;
+                if (address != null && address !== "") client.setMasterServerAddress(address);
+                client.connect(options);
+                window.state["photon"] = client;
+            }
+            return (window.state != null && window.state["photon"] != null) ? window.state["photon"] : null;
+        }
+        // ************************************************************************ //
+        // LOADING SCREEN - Attach Project Loadeing Screen Event Handler            //
+        // ************************************************************************ //
+        function LoadingScreen() {};
+        LoadingScreen.prototype.displayLoadingUI = function() {};
+        LoadingScreen.prototype.hideLoadingUI = function() {};
+        // ************************************************************************ //
+        // PAGE UTILTITIES - General Page Utility Funcitons                         //
+        // ************************************************************************ //
+        window.updateStatus = function(status, info, state) {
+            if (label != null && status != null && label.innerHTML !== status) {
+                label.innerHTML = status;
+            }                   
+            if (details != null && info != null && details.innerHTML !== info) {
+                details.innerHTML = info;
+            }
+            // ..
+            // Support Top Window Scene Loader (Note: FrameElement Check Required)
+            // ..
+            if (window.frameElement != null && top != null && window.top != null && window.top.updateStatus != null) {
+                window.top.updateStatus(status, info, state);
+            }
+        };
+        window.showSceneLoader = function() {
+            if (proj != null) proj.className = "";
+            if (panel != null) panel.className = "";
+            if (label != null) label.className = "";
+            if (details != null) details.className = "";
+            if (loader != null) loader.className = "data";
+            // ..
+            divcvs.style.opacity = "0";
+            engine.clear(new BABYLON.Color3(0, 0, 0), true, true);
+            engine.displayLoadingUI();
+            window.updateStatus("", "", 0);
+        };
+        window.hideSceneLoader = function() {
+            if (proj != null) proj.className = "hidden";
+            if (panel != null) panel.className = "hidden";
+            if (label != null) label.className = "hidden";
+            if (details != null) details.className = "hidden";
+            if (loader != null) loader.className = "hidden";
+            // ..
+            engine.hideLoadingUI();
+            divcvs.style.opacity = "1";
+            window.updateStatus("", "", 0);
+            // ..
+            // Support Top Window Scene Loader (Note: FrameElement Check Required)
+            // ..
+            if (window.frameElement != null && top != null && window.top != null && window.top.loadSceneComplete != null) {
+                window.top.loadSceneComplete();
+            }
+            if (engine != null) {
+                if (BABYLON.SceneManager != null && BABYLON.SceneManager.OnLoadCompleteObservable && BABYLON.SceneManager.OnLoadCompleteObservable.hasObservers() === true) {
+                    BABYLON.SceneManager.OnLoadCompleteObservable.notifyObservers(engine);
+                }
+            }
+        };
+        window.showErrorMessage = function (message, title, timeout) {
+            console.error(message);
+            iziToast.error({
+                message: message,
+                title: title || "Error",
+                timeout: timeout || 0
+            });    
+        };
+        // ************************************************************************ //
+        // SCENE LOADER - Execute Scene Loading With Progress Information           //
+        // ************************************************************************ //
+        var executeSceneLoader = function(root, name) {
+            var defaultDetails = "Loading " + name.toLowerCase();
+            window.updateStatus("Loading", defaultDetails, 0);
+            var qlevel = (BABYLON.SceneManager != null && BABYLON.SceneManager.GetRenderQuality) ? BABYLON.SceneManager.GetRenderQuality() : 0;
+            var qlabel = "High";
+            if (qlevel === 1) qlabel = "Medium";
+            else if (qlevel == 2) qlabel = "Low";
+            BABYLON.Tools.Log("Graphics render quality: " + qlabel);
+            // WORK-IN-PORGRESS: if (reloader === true) window.top.sessionStorage?.setItem("reloadScene", name);
+            BABYLON.SceneLoader.Load(root, name, engine, function(newscene) {
+                window.scene = newscene;
+                window.scene.executeWhenReady(function() {
+                    loaded = true;
+                    window.updateStatus("Ready", "Preparing scene content", 2);
+                    if (window.scene.cameras == null || window.scene.cameras.length <= 0) {
+                        BABYLON.Tools.Warn("Adding default camera to scene");
+                        var zposition = (BABYLON.SceneManager != null && BABYLON.SceneManager.GetRightHanded && BABYLON.SceneManager.GetRightHanded(window.scene) === true) ? 10 : -10;
+                        var yrotation = (BABYLON.SceneManager != null && BABYLON.SceneManager.GetRightHanded && BABYLON.SceneManager.GetRightHanded(window.scene) === true) ? Math.PI : 0;
+                        var camera = new BABYLON.UniversalCamera("Default Camera", new BABYLON.Vector3(0, 1, zposition), window.scene);
+                        camera.rotation = new BABYLON.Vector3(0, yrotation, 0);
+                    }
+                    engine.runRenderLoop(function() { 
+                        paused = (BABYLON.SceneManager != null && BABYLON.SceneManager.PauseRenderLoop === true); 
+                        if (!paused) {
+                            if (window.METER) {
+                                window.METER.tickStart();
+                                window.scene.render();
+                                window.METER.tick();
+                            } else {
+                                window.scene.render();
+                            }
+                        }
+                    });
+                    resizeRenderingCanvas();                    
+                    var preWarm = window.scene?.metadata?.unity?.prewarm || false;
+                    var warmTime = window.scene?.metadata?.unity?.warmtime || 0;
+                    var warmMsg = window.scene?.metadata?.unity?.warmmsg || "Preparing scene content"; 
+                    if (preWarm === true && warmTime > 0) {
+                        window.updateStatus("Ready", warmMsg, 3);
+                        window.setTimeout(window.hideSceneLoader, warmTime * 1000);
+                    } else {
+                        window.setTimeout(window.hideSceneLoader, 3000); // Note: Default Loader Warm Timeout
+                    }
+                });
+            }, function(evt) {
+                var pstatus = "Loading";
+                var details = defaultDetails;
+                var lstate = (BABYLON.Utilities != null) ? BABYLON.Utilities.GetLoadingState() : 0;
+                switch (lstate) {
+                    case 1:     // LOAD SCENE CONTENT
+                        pstatus = "Loading";
+                        details = defaultDetails;
+                        break;
+                    case 2:     // PARSE SCENE BEGIN
+                        pstatus = "Parsing";
+                        details = "Parsing scene content";
+                        break;
+                    case 3:     // READY SCENE COMPLETE
+                        pstatus = "Ready";
+                        details = "Preparing scene content";
+                        break;
+                }
+                if (evt.loaded > 0) {
+                    if (evt.lengthComputable) {
+                        var percentage = (evt.loaded * 100 / evt.total).toFixed();
+                        var percentstatus = (lstate >= 2) ? pstatus : percentage + "%";
+                        window.updateStatus(percentstatus, details, lstate);
+                    } else {
+                        var units = " MB";
+                        var progess = Math.ceil(evt.loaded / (1024 * 1024));
+                        if (progess >= downloaded) {
+                            downloaded = progess;
+                        }
+                        if (downloaded > 0) {
+                            if (downloaded > 1024) {
+                                units = " GB";
+                                downloaded = (downloaded / 1024);
+                            }
+                            var sizestatus = (lstate >= 2) ? pstatus : downloaded + units;
+                            window.updateStatus(sizestatus, details, lstate);
+                        }
+                    }
+                } else {
+                    window.updateStatus("", details, lstate);
+                }
+            }, function(scene, message, exception) {
+                showErrorMessage(exception || message || ("Unknown error loading scene:" + name));
+            });
+        };
+        var loadSceneFile = function() {
+            loaded = false;
+            window.scene = null;
+            window.showSceneLoader();
+            executeSceneLoader(scenepath, scenename);
+        };
+        var defaultSceneLoader = function() {
+            try {
+                loadSceneFile();
+            } catch (ex2) {
+                showErrorMessage(ex2.message || "Unknown Scene Exception");
+            }
+        };
+        var recastDetourLoader = function() {
+            try {
+                if (typeof Recast !== "undefined") {
+                    Recast().then(function() { defaultSceneLoader(); });
+                } else {
+                    defaultSceneLoader();
+                }
+            } catch (ex3) {
+                showErrorMessage(ex3.message || "Unknown Recast Exception");
+            }
+        }
+        var bulletPhysicsLoader = function() {
+            try {
+                if (typeof Ammo !== "undefined") {
+                    Ammo().then(function() {  recastDetourLoader(); });
+                } else {
+                    recastDetourLoader();
+                }
+            } catch (ex4) {
+                showErrorMessage(ex4.message || "Unknown Bullet Exception");
+            }
+        }
+        var startSceneLoader = function() {
+            bulletPhysicsLoader();
+        }
+        var resizeRenderingCanvas = function() {
+            if (engine != null) {
+                engine.resize();
+                if (BABYLON.SceneManager != null && BABYLON.SceneManager.OnEngineResizeObservable && BABYLON.SceneManager.OnEngineResizeObservable.hasObservers() === true) {
+                    BABYLON.SceneManager.OnEngineResizeObservable.notifyObservers(engine);
+                }
+            }
+        }
+        // ************************************************************************ //
+        // BABYLON ENGINE - Create Engine And Load Project Scene Hiearchy           //
+        // ************************************************************************ //
+        try {
+            if (renderengine === 1) {
+                if (navigator.gpu) {
+                    engine = new BABYLON.WebGPUEngine(divcvs);
+                    await engine.initAsync({ jsPath: "scripts/glslang.js", wasmPath: "scripts/glslang.wasm" }).catch((ex) => { showErrorMessage(ex.message || "Unknown WebGPU Exception"); });
+                } else {
+                    BABYLON.Tools.Warn("WebGPU is not supported on platform. Falling back to WebGL");
+                    engine = new BABYLON.Engine(divcvs, antialias, {premultipliedAlpha: false}, adaptive);
+                }
+            } else {
+                engine = new BABYLON.Engine(divcvs, antialias, {premultipliedAlpha: false}, adaptive);
+            }
+            engine.loadingScreen = new LoadingScreen();
+            engine.enableOfflineSupport = false;
+            engine.clear(new BABYLON.Color3(0, 0, 0), true, true);
+            engine.displayLoadingUI();
+            startSceneLoader();            
+        } catch (ex3) {
+            showErrorMessage(ex3.message || "Unknown Engine Exception");
+        }
+        // ************************************************************************ //
+        // FONTS READY - Setup Font Face Loader Events                              //
+        // ************************************************************************ //
+        document.fonts.ready.then(function() {
+            if (engine != null) {
+                if (BABYLON.SceneManager != null && BABYLON.SceneManager.OnFontsReadyObservable && BABYLON.SceneManager.OnFontsReadyObservable.hasObservers() === true) {
+                    BABYLON.SceneManager.OnFontsReadyObservable.notifyObservers(engine);
+                }
+            }
+        });
+        // ************************************************************************ //
+        // KTX2 DECODER - Initialize Default Loader Locations                       //
+        // ************************************************************************ //
+        if (BABYLON.KhronosTextureContainer2.URLConfig) {
+            var href = window.location.href;
+            var path = href.substring(0, href.lastIndexOf('/')) + "/";
+            BABYLON.KhronosTextureContainer2.URLConfig.jsDecoderModule = path + "scripts/babylon.ktx2Decoder.js";
+            BABYLON.KhronosTextureContainer2.URLConfig.jsMSCTranscoder = path + "scripts/msc_basis_transcoder.js";
+            BABYLON.KhronosTextureContainer2.URLConfig.wasmMSCTranscoder = path + "scripts/msc_basis_transcoder.wasm";
+            BABYLON.KhronosTextureContainer2.URLConfig.wasmUASTCToASTC = path + "scripts/uastc_astc.wasm";
+            BABYLON.KhronosTextureContainer2.URLConfig.wasmUASTCToBC7 = path + "scripts/uastc_bc7.wasm";
+            BABYLON.KhronosTextureContainer2.URLConfig.wasmUASTCToRGBA_UNORM = path + "scripts/uastc_rgba32_unorm.wasm";
+            BABYLON.KhronosTextureContainer2.URLConfig.wasmUASTCToRGBA_SRGB = path + "scripts/uastc_rgba32_srgb.wasm";
+        }            
+        // ************************************************************************ //
+        // DEFAULT LOADER - Initialize Default Scene Loading                        //
+        // ************************************************************************ //
+        window.addEventListener("resize", function() { resizeRenderingCanvas(); });
+    })();
+    </script>
+</body>
+</html>
